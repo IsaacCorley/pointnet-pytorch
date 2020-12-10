@@ -1,6 +1,7 @@
 import os
 import glob
 import shutil
+from typing import List
 
 import torch
 import torchvision
@@ -12,19 +13,27 @@ URLS = {
     "modelnet40": "http://modelnet.cs.princeton.edu/ModelNet40.zip"
 }
 
+
 class ModelNetDataset(torch.utils.data.Dataset):
 
-    path = ''
-    url = ''
+    path: str = ""
+    url: str = ""
 
-    def __init__(self, root: str) -> None:
-        
+    def __init__(
+        self, root: str,
+        split: str = "train",
+        in_memory: bool = False
+    ) -> None:
+
         self.root = root
+        self.in_memory = in_memory
         self.path = os.path.join(self.root, self.path)
 
         if not os.path.exists(self.path):
             self.download(root=self.root, url=self.url)
-            shutil.rmtree(os.path.join(self.root, "__MACOSX"))
+
+            if os.path.exists(os.path.join(self.root, "__MACOSX")):
+                shutil.rmtree(os.path.join(self.root, "__MACOSX"))
 
         self.classes = next(os.walk(self.path))[1]
 
@@ -35,15 +44,14 @@ class ModelNetDataset(torch.utils.data.Dataset):
             remove_finished=True
         )
 
+
 class ModelNet10(ModelNetDataset):
-    
+
     path = "ModelNet10"
     url = URLS["modelnet10"]
 
 
-
 class ModelNet40(ModelNetDataset):
-    
+
     path = "ModelNet40"
     url = URLS["modelnet40"]
-

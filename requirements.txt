@@ -1,0 +1,6 @@
+tqdm
+h5py
+numpy
+torch
+torchvision
+trimesh

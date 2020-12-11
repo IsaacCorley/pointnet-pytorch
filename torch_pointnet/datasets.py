@@ -20,12 +20,14 @@ class ModelNetDataset(torch.utils.data.Dataset):
     url: str = ""
 
     def __init__(
-        self, root: str,
+        self,
+        root: str,
         split: str = "train",
         in_memory: bool = False
     ) -> None:
 
         self.root = root
+        self.split = split
         self.in_memory = in_memory
         self.path = os.path.join(self.root, self.path)
 

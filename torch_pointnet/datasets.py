@@ -1,4 +1,5 @@
 import os
+import gc
 import glob
 import shutil
 import multiprocessing as mp
@@ -10,8 +11,16 @@ import trimesh
 import numpy as np
 from tqdm import tqdm
 
+import h5py
+import trimesh
 import torch
+<<<<<<< HEAD
+=======
+import torchvision
+import numpy as np
+>>>>>>> 7defa3160be6b0fe5f1cdf3a7af15f1c5a19e155
 from torchvision.datasets.utils import download_and_extract_archive
+from tqdm import tqdm
 
 
 URLS = {
@@ -28,6 +37,8 @@ class ModelNetDataset(torch.utils.data.Dataset):
 
     path: str = ""
     url: str = ""
+    hdf5_path: str = ""
+    ext = ".off"
 
     def __init__(
         self,
@@ -49,12 +60,11 @@ class ModelNetDataset(torch.utils.data.Dataset):
 
         os.makedirs(self.root, exist_ok=True)
 
+        # Download dataset if necessary
         if not os.path.exists(self.path):
             self.download(root=self.root, url=self.url)
 
-            if os.path.exists(os.path.join(self.root, "__MACOSX")):
-                shutil.rmtree(os.path.join(self.root, "__MACOSX"))
-
+        # Get class labels and mappings
         self.classes = next(os.walk(self.path))[1]
         self.idx2class = dict(enumerate(self.classes))
 

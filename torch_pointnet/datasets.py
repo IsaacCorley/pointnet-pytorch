@@ -14,11 +14,6 @@ from tqdm import tqdm
 import h5py
 import trimesh
 import torch
-<<<<<<< HEAD
-=======
-import torchvision
-import numpy as np
->>>>>>> 7defa3160be6b0fe5f1cdf3a7af15f1c5a19e155
 from torchvision.datasets.utils import download_and_extract_archive
 from tqdm import tqdm
 

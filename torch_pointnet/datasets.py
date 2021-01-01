@@ -11,11 +11,8 @@ import trimesh
 import numpy as np
 from tqdm import tqdm
 
-import h5py
-import trimesh
 import torch
 from torchvision.datasets.utils import download_and_extract_archive
-from tqdm import tqdm
 
 
 URLS = {
@@ -73,8 +70,10 @@ class ModelNetDataset(torch.utils.data.Dataset):
                 print("Loading dataset...")
                 X, y = self.load(root=self.path, multiprocessing=multiprocessing)
 
-                print(f"Saving datasets to hdf5 {self.hdf5_path}")
+                print(f"Saving dataset to hdf5 {self.hdf5_path}")
                 self.to_hdf5(self.hdf5_path, X, y)
+                del X, y
+                gc.collect()
 
     def download(self, root: str, url: str) -> None:
         download_and_extract_archive(
@@ -82,12 +81,18 @@ class ModelNetDataset(torch.utils.data.Dataset):
             download_root=root,
             remove_finished=True
         )
+        if os.path.exists(os.path.join(self.root, "__MACOSX")):
+            shutil.rmtree(os.path.join(self.root, "__MACOSX"))
 
-    def load(self, root: str, multiprocessing: bool = True) -> Tuple[np.ndarray, np.ndarray]:
+    def load(
+        self,
+        root: str,
+        multiprocessing: bool
+    ) -> Tuple[np.ndarray, np.ndarray]:
         if multiprocessing:
             return self.load_mp(root)
         else:
-            return self.load_mp(root)
+            return self.load_sp(root)
 
     def load_sp(self, root: str) -> Tuple[np.ndarray, np.ndarray]:
 
@@ -96,7 +101,7 @@ class ModelNetDataset(torch.utils.data.Dataset):
             print(f"Processing Class: {c}")
             path = os.path.join(root, c, self.split)
             print(path)
-            files = glob.glob(os.path.join(path, "*.off"))
+            files = glob.glob(os.path.join(path, f"*{self.ext}"))
 
             for f in tqdm(files, total=len(files)):
                 points.append(trimesh.load(f).sample(self.num_points))
@@ -108,17 +113,17 @@ class ModelNetDataset(torch.utils.data.Dataset):
 
         load_func = partial(load_mesh, num_points=self.num_points)
 
-        points, labels = [], []
+        points, labels, files = [], [], []
         for i, c in enumerate(self.classes):
-            print(f"Processing Class: {c}")
             path = os.path.join(root, c, self.split)
-            print(path)
-            files = glob.glob(os.path.join(path, "*.off"))
+            class_files = glob.glob(os.path.join(path, f"*{self.ext}"))
+            class_labels = [i] * len(class_files)
+            files.extend(class_files)
+            labels.extend(class_labels)
 
-            with mp.Pool(processes=mp.cpu_count()) as pool:
+        with mp.Pool(processes=mp.cpu_count()) as pool:
             for mesh in tqdm(pool.map(load_func, files), total=len(files)):
                 points.append(mesh)
-                labels.append(i)
 
         return np.array(points), np.array(labels)
 

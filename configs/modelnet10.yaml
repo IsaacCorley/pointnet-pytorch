@@ -1,0 +1,16 @@
+data:
+  dataset: ModelNet10
+  root: data
+  num_classes: 10
+  
+  transforms:
+    num_points: 2048
+    jitter_mean: 0.0
+    jitter_std: 0.02
+
+train:
+  lr: 0.001
+  epochs: 5
+  batch_size: 32
+
+device: cuda

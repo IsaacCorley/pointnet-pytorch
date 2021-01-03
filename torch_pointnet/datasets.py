@@ -4,7 +4,6 @@ import shutil
 from typing import Tuple, List
 
 import trimesh
-
 import torch
 import torchvision.transforms as T
 from torchvision.datasets.utils import download_and_extract_archive

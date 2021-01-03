@@ -11,8 +11,8 @@ from torch.utils.tensorboard import SummaryWriter
 from torch.utils.data import DataLoader
 
 import torch_pointnet.datasets
-from losses import PointNetLoss
-from torch_pointnet.models import PointNet
+from torch_pointnet.losses import PointNetLoss
+from torch_pointnet.models import PointNetClassifier
 from torch_pointnet.transforms import train_transforms, test_transforms
 
 
@@ -26,7 +26,10 @@ torch.backends.cudnn.benchmark = False
 def main(cfg: Dict) -> None:
 
     # Load model
-    model = PointNet(num_points=cfg["data"]["transforms"]["num_points"])
+    model = PointNetClassifier(
+        num_points=cfg["data"]["transforms"]["num_points"],
+        num_classes=cfg["data"]["num_classes"]
+    )
     model = model.to(cfg["device"])
 
     # Setup optimizer and loss func

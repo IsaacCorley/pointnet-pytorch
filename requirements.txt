@@ -1,7 +1,6 @@
-tqdm
-h5py
-numpy
-torch
-torchvision
-trimesh
-pytorch-lightning
+tqdm>=4.45.0
+pyyaml>=5.3.1
+numpy>=1.19.2
+torch>=1.7.0
+torchvision>=0.8.1
+open3d>=0.12.0

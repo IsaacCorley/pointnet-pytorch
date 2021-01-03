@@ -10,7 +10,8 @@ data:
 
 train:
   lr: 0.001
-  epochs: 5
+  momentum: 0.9
+  epochs: 1
   batch_size: 32
 
 device: cuda

@@ -1,4 +1,5 @@
 import torch
+import open3d
 import trimesh
 import numpy as np
 import torchvision.transforms as T
@@ -7,7 +8,20 @@ import torchvision.transforms as T
 class LoadMesh(object):
 
     def __call__(self, x: str) -> trimesh.Trimesh:
-        return trimesh.load(x)
+        return open3d.read_triangle_mesh(x)
+
+class ArrayToPCL(object):
+
+    def __call__(self, x: np.ndarray) -> open3d.geometry.PointCloud:
+        pcd = open3d.geometry.PointCloud()
+        pcd.points = open3d.utility.Vector3dVector(x)
+        return pcd
+
+
+class PCLToArray(object):
+
+    def __call__(self, x: open3d.geometry.PointCloud) -> np.ndarray:
+        return np.asarray(x.points)
 
 
 class PointSampler(object):
@@ -15,14 +29,8 @@ class PointSampler(object):
     def __init__(self, num_points: int):
         self.num_points = num_points
 
-    def __call__(self, x: trimesh.Trimesh):
-        return x.sample(self.num_points)
-
-
-class MeshToArray(object):
-
-    def __call__(self, x: trimesh.Trimesh) -> np.ndarray:
-        return np.array(x)
+    def __call__(self, x: open3d.geometry.TriangleMesh) -> open3d.geometry.PointCloud:
+        return x.sample_points_uniformly(number_of_points=self.num_points)
 
 
 class PointJitter(object):
@@ -31,7 +39,7 @@ class PointJitter(object):
         self.mu = mu
         self.sigma = sigma
 
-    def forward(self, x: np.ndarray) -> torch.Tensor:
+    def __call__(self, x: np.ndarray) -> torch.Tensor:
         noise = np.random.normal(loc=self.mu, scale=self.sigma, size=x.shape)
         return x + noise
 
@@ -68,11 +76,11 @@ class PointsToTensor(object):
         return torch.from_numpy(x)
 
 
-def train_transforms(num_points: int, mu: float, sigma: float) -> T.Compose:
+def train_transforms(num_points: int, mu: float = 0.0, sigma: float = 0.02) -> T.Compose:
     return T.Compose(
         LoadMesh(),
         PointSampler(num_points),
-        MeshToArray(),
+        PCLToArray(),
         PointJitter(mu, sigma),
         PointRotateZ(),
         PointShuffle(),
@@ -85,7 +93,7 @@ def test_transforms(num_points: int) -> T.Compose:
     return T.Compose(
         LoadMesh(),
         PointSampler(num_points),
-        MeshToArray(),
+        PCLToArray(),
         NormalizePoints(),
         PointsToTensor()
     )

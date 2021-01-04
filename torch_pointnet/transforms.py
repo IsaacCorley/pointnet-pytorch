@@ -1,6 +1,5 @@
 import torch
 import open3d
-import trimesh
 import numpy as np
 import torchvision.transforms as T
 

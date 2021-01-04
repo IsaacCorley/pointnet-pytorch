@@ -77,7 +77,7 @@ class PointsToTensor(object):
 
 
 def train_transforms(num_points: int, mu: float = 0.0, sigma: float = 0.02) -> T.Compose:
-    return T.Compose(
+    return T.Compose([
         LoadMesh(),
         PointSampler(num_points),
         PCLToArray(),
@@ -86,14 +86,14 @@ def train_transforms(num_points: int, mu: float = 0.0, sigma: float = 0.02) -> T
         PointShuffle(),
         NormalizePoints(),
         PointsToTensor()
-    )
+    ])
 
 
 def test_transforms(num_points: int) -> T.Compose:
-    return T.Compose(
+    return T.Compose([
         LoadMesh(),
         PointSampler(num_points),
         PCLToArray(),
         NormalizePoints(),
         PointsToTensor()
-    )
+    ])

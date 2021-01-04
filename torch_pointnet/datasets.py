@@ -3,7 +3,6 @@ import glob
 import shutil
 from typing import Tuple, List
 
-import trimesh
 import torch
 import torchvision.transforms as T
 from torchvision.datasets.utils import download_and_extract_archive
@@ -13,10 +12,6 @@ URLS = {
     "ModelNet10": "http://3dvision.princeton.edu/projects/2014/3DShapeNets/ModelNet10.zip",
     "ModelNet40": "http://modelnet.cs.princeton.edu/ModelNet40.zip"
 }
-
-
-def load_mesh(path: str, num_points: int) -> trimesh.Trimesh:
-    return trimesh.load(path).sample(num_points)
 
 
 class ModelNetDataset(torch.utils.data.Dataset):

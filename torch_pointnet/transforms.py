@@ -17,6 +17,13 @@ class ArrayToPCL(object):
         pcd.points = open3d.utility.Vector3dVector(x)
         return pcd
 
+class TensorToPCL(object):
+
+    def __call__(self, x: torch.Tensor) -> open3d.geometry.PointCloud:
+        pcd = open3d.geometry.PointCloud()
+        pcd.points = open3d.utility.Vector3dVector(x.detach().cpu().numpy())
+        return pcd
+
 
 class PCLToArray(object):
 

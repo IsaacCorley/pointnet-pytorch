@@ -37,8 +37,7 @@ def main(cfg: Dict) -> None:
         params=model.parameters(),
         lr=cfg["train"]["lr"]
     )
-    loss_func = PointNetLoss()
-    loss_func = loss_func.to(cfg["device"])
+    loss_func = PointNetLoss(weight_decay=cfg["train"]["weight_decay"])
 
     # Load datasets
     dataset = getattr(torch_pointnet.datasets, cfg["data"]["dataset"])

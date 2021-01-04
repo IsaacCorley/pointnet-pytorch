@@ -7,7 +7,7 @@ import torchvision.transforms as T
 class LoadMesh(object):
 
     def __call__(self, x: str) -> open3d.geometry.TriangleMesh:
-        return open3d.read_triangle_mesh(x)
+        return open3d.io.read_triangle_mesh(x)
 
 
 class ArrayToPCL(object):

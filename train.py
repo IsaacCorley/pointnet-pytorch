@@ -126,14 +126,20 @@ def main(cfg: DictConfig):
         test_acc = num_correct / len(test_dataset)
 
         writer.add_scalar(
-            tag="test_loss", scalar_value=np.mean(test_acc), global_step=n_iter
+            tag="test_acc", scalar_value=np.mean(test_acc), global_step=n_iter
         )
         writer.add_scalar(
-            tag="test_acc", scalar_value=np.mean(test_loss * 100.0), global_step=n_iter
+            tag="test_loss", scalar_value=np.mean(test_loss * 100.0), global_step=n_iter
         )
 
         # save checkpoint
-        torch.save(model.state_dict(), os.path.join(writer.log_dir, "model.pt"))
+        #torch.save(model.state_dict(), os.path.join(writer.log_dir, "model.pt"))
+
+        # colab
+        out_dir = "/content/drive/MyDrive/Github/pointnet-pytorch/models"
+        filename = "modelnet10_epoch_{}_loss_{:.4f}_acc_{:.4f}.pt".format(epoch, test_loss, test_acc)
+        out_path = os.path.join(out_dir, filename)
+        torch.save(model.state_dict(), out_path)
 
 
 if __name__ == "__main__":

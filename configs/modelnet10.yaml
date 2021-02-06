@@ -12,8 +12,8 @@ train:
   lr: 1E-3
   momentum: 0.9
   weight_decay: 1E-4
-  epochs: 1
-  batch_size: 32
+  epochs: 100
+  batch_size: 128
   num_prefetch: 8
   log_interval: 10
 

@@ -73,8 +73,8 @@ class PointShuffle(object):
 class NormalizePoints(object):
 
     def __call__(self, x: np.ndarray) -> np.ndarray:
-        norm = x = np.mean(x, axis=0)
-        return x / np.max(np.linalg.norm(norm, axis=1))
+        x -= np.mean(x, axis=0)
+        return x / np.max(np.linalg.norm(x, axis=1))
 
 
 class PointsToTensor(object):

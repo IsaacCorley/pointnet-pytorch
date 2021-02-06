@@ -73,8 +73,8 @@ class ModelNetDataset(torch.utils.data.Dataset):
     def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor]:
         path, y = self.files[idx], self.labels[idx]
         x = self.transforms(path)
-        x, y = torch.from_numpy(x), torch.tensor(y, dtype=torch.long)
-        x = x.to(torch.float).unsqueeze(0)
+        y = torch.tensor(y, dtype=torch.long)
+        x = x.t()
         return x, y
 
 

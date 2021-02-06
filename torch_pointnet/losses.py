@@ -19,11 +19,14 @@ class PointNetLoss(nn.Module):
         feature_matrix: torch.Tensor
     ) -> torch.Tensor:
 
-        batch_size = y_pred.size(0)
+        bs, dtype, device = y_pred.size(0), y_pred.dtype, y_pred.device
 
         # Orthogonal regularization loss
-        input_identity = torch.eye(input_matrix.size(-1), requires_grad=True).repeat(batch_size, 1, 1)
-        feature_identity = torch.eye(feature_matrix.size(-1), requires_grad=True).repeat(batch_size, 1, 1)
+        input_identity = torch.eye(input_matrix.size(-1), requires_grad=True).repeat(bs, 1, 1)
+        feature_identity = torch.eye(feature_matrix.size(-1), requires_grad=True).repeat(bs, 1, 1)
+        
+        input_identity = input_identity.to(device).to(dtype)
+        feature_identity = feature_identity.to(device).to(dtype)
         
         orthogonal_input_loss = self.reg_loss(
             torch.bmm(input_matrix, input_matrix.transpose(1, 2)),
@@ -33,7 +36,7 @@ class PointNetLoss(nn.Module):
             torch.bmm(feature_matrix, feature_matrix.transpose(1, 2)),
             feature_identity
         )
-        orthogonal_reg_loss = (orthogonal_input_loss + orthogonal_feature_loss) / float(batch_size)
+        orthogonal_reg_loss = (orthogonal_input_loss + orthogonal_feature_loss) / float(bs)
         
         # Classification loss
         class_loss = self.loss(y_pred, y)

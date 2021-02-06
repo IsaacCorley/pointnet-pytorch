@@ -6,6 +6,7 @@ import torch.nn.functional as F
 
 
 class ConvBlock(nn.Module):
+
     def __init__(
         self,
         in_channels: int,
@@ -36,6 +37,7 @@ class ConvBlock(nn.Module):
 
 
 class FCBlock(nn.Module):
+
     def __init__(
         self,
         in_features: int,
@@ -68,6 +70,7 @@ class FCBlock(nn.Module):
 
 
 class TNet(nn.Module):
+
     def __init__(self, k: int, n: int):
         super().__init__()
         self.k = k
@@ -86,11 +89,12 @@ class TNet(nn.Module):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.model(x)
         identity = torch.eye(self.k, requires_grad=True).repeat(x.size(0), 1, 1)
-        identity = identity.to(x.device)
+        identity = identity.to(x.device).to(x.dtype)
         matrix = x.view(-1, self.k, self.k) + identity
         return matrix
 
 class Backbone(nn.Module):
+
     def __init__(self, n: int):
         super().__init__()
         self.input_transform = TNet(k=3, n=n)
@@ -124,6 +128,7 @@ class Backbone(nn.Module):
 
 
 class PointNetClassifier(nn.Module):
+
     def __init__(self, num_points: int, num_classes: int):
         super().__init__()
         self.backbone = Backbone(n=num_points)
@@ -144,6 +149,7 @@ class PointNetClassifier(nn.Module):
 
 
 class PointNetSegmentation(nn.Module):
+
     def __init__(self, num_points: int, num_classes: int, classifier: PointNetClassifier):
         super().__init__()
         self.num_points = num_points

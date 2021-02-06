@@ -67,7 +67,7 @@ def main(cfg: DictConfig):
         drop_last=True,
         pin_memory=True,
         num_workers=mp.cpu_count(),
-        prefetch_factor=4
+        prefetch_factor=cfg.train.num_prefetch
     )
     test_dataloader = DataLoader(
         test_dataset,
@@ -76,7 +76,7 @@ def main(cfg: DictConfig):
         drop_last=False,
         pin_memory=True,
         num_workers=mp.cpu_count(),
-        prefetch_factor=4
+        prefetch_factor=cfg.train.num_prefetch
     )
 
     writer = SummaryWriter()
@@ -92,8 +92,9 @@ def main(cfg: DictConfig):
             x, y = x.to(cfg.device), y.to(cfg.device)
 
             with torch.cuda.amp.autocast():
-                y_pred, mat = model(x)
-                loss = loss_func(y_pred, y, mat)
+                x = x.half()    # weird that torch 1.7.0+cu101 doesn't autocast to float
+                y_pred, input_matrix, feature_matrix = model(x)
+                loss = loss_func(y_pred, y, input_matrix, feature_matrix)
 
             loss.backward()
             opt.step()
@@ -114,11 +115,12 @@ def main(cfg: DictConfig):
         for batch, (x, y) in pbar:
             x, y = x.to(cfg.device), y.to(cfg.device)
 
-            with torch.cuda.amp.autocast():
-                y_pred, mat = model(x)
-                test_loss += float(loss_func(y_pred, y, mat))
-                pred = y_pred.argmax(dim=1, keepdim=True).cpu()
-                num_correct += int(pred.eq(y.view_as(pred)).sum())
+            with torch.no_grad(), torch.cuda.amp.autocast():
+                x = x.half()
+                y_pred, input_matrix, feature_matrix = model(x)
+                test_loss += float(loss_func(y_pred, y, input_matrix, feature_matrix))
+                pred = y_pred.argmax(dim=1, keepdim=True)
+                num_correct += int(pred.eq(y.view_as(pred)).sum().cpu())
 
         test_loss /= len(test_dataset)
         test_acc = num_correct / len(test_dataset)
